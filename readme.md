@@ -54,16 +54,45 @@ The library supports the following data types:
 #include "array.h"
 
 int main() {
+    // Define the shape of the array (2 rows, 3 columns)
     size_t shape[2] = {2, 3};
-    Array* arr = create_array(TYPE_INT, 2, shape, NULL);
 
-    for (size_t i = 0; i < arr->size; i++) {
-        int value = i + 1;
-        set_element(arr, (size_t[]){i / 3, i % 3}, &value);
+    // Define the source data array
+    int data[6] = {1, 2, 3, 4, 5, 6}; // Source data array
+
+    // Create a 2D integer array directly with data
+    Array* arr = create_array(TYPE_INT, 2, shape, data);
+    
+    // Check if array creation was successful
+    if (!arr) {
+        fprintf(stderr, "Failed to create array.\n");
+        return 1;
     }
 
+    // Print the shape of the array
+    printf("Array shape: ");
     print_shape(arr->shape, arr->ndim);
+
+    // Print the array contents after initialization
+    printf("Array contents after initialization:\n");
+    for (size_t row = 0; row < shape[0]; row++) {
+        for (size_t col = 0; col < shape[1]; col++) {
+            int* value = (int*)get_element(arr, (size_t[]){row, col});
+            printf("%d ", *value);
+        }
+        printf("\n");
+    }
+
+    // display broadcasting 
+    size_t shapeA[2] = {1, 4};
+    size_t shapeB[2] = {4, 1};
+    size_t result_ndim;
+    size_t* result_shape = broadcast_shapes(shapeA, 2, shapeB, 2, &result_ndim);
+    printf("Broadcasted shape: ");
+    print_shape(result_shape, result_ndim);
+
     free_array(arr);
+    free(result_shape);
     return 0;
 }
 ```
