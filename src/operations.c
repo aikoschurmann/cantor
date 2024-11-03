@@ -77,7 +77,7 @@ int get_op_index(char op) {
     }
 }
 
-void apply_operation(char operation_symbol, void* result, const void* a, const void* b, DataType dtype) {
+void apply_operation(char operation_symbol, void* result, void* a, void* b, DataType dtype) {
     int op_index = get_op_index(operation_symbol);
     if (op_index == -1 || dtype < TYPE_INT || dtype > TYPE_DOUBLE) {
         fprintf(stderr, "Unsupported operation or data type\n");
