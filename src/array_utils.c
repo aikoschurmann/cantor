@@ -73,24 +73,26 @@ int are_shapes_equal(size_t* shapeA, size_t ndimA, size_t* shapeB, size_t ndimB)
 }
 
 int arrays_are_equal(Array* arr_a, Array* arr_b) {
-    if (!arr_a || !arr_b) {
-        fprintf(stderr, "One of the arrays is NULL\n");
-        return 0;
-    }
+    #if DEBUG_MODE
+        if (!arr_a || !arr_b) {
+            log_error("One of the arrays is NULL");
+            return 0;
+        }
+    #endif
 
     if (arr_a->dtype != arr_b->dtype) {
-        fprintf(stderr, "Data types are not equal\n");
+        log_error("Data types are not equal");
         return 0;
     }
 
     if (arr_a->ndim != arr_b->ndim) {
-        fprintf(stderr, "Number of dimensions are not equal\n");
+        log_error("Number of dimensions are not equal");
         return 0;
     }
 
     for (size_t i = 0; i < arr_a->ndim; i++) {
         if (arr_a->shape[i] != arr_b->shape[i]) {
-            fprintf(stderr, "Shapes are not equal\n");
+            log_error("Shapes are not equal");
             return 0;
         }
     }
@@ -100,7 +102,7 @@ int arrays_are_equal(Array* arr_a, Array* arr_b) {
         void* elem_b = (char*)arr_b->data + i * get_dtype_size(arr_b->dtype);
 
         if (memcmp(elem_a, elem_b, get_dtype_size(arr_a->dtype)) != 0) {
-            fprintf(stderr, "Elements are not equal\n");
+            log_error("Elements are not equal");
             return 0;
         }
     }

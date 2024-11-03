@@ -1,8 +1,4 @@
-#ifndef OPERATIONS_H
-#define OPERATIONS_H
-
 #include "array.h"
-#include "operations.h"
 
 // Define function pointer type for operations
 typedef void (*OpFunc)(void* result, const void* a, const void* b);
@@ -80,11 +76,10 @@ int get_op_index(char op) {
 void apply_operation(char operation_symbol, void* result, void* a, void* b, DataType dtype) {
     int op_index = get_op_index(operation_symbol);
     if (op_index == -1 || dtype < TYPE_INT || dtype > TYPE_DOUBLE) {
-        fprintf(stderr, "Unsupported operation or data type\n");
+        log_error("Invalid operation or data type");
         return;
     }
     // Execute the appropriate operation
     op_tables[dtype][op_index](result, a, b);
 }
 
-#endif

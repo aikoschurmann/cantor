@@ -5,20 +5,21 @@
 
 
 size_t* broadcast_shapes(size_t* shapeA, size_t ndimA, size_t* shapeB, size_t ndimB, size_t* result_ndim) {
-    if (!shapeA || !shapeB) {
-        fprintf(stderr, "One of the shapes is NULL\n");
-        return NULL;
-    }
+    #if DEBUG_MODE
+        if (!shapeA || !shapeB) {
+            log_error("One of the inputs is NULL");
+            return NULL;
+        }
 
-    if (ndimA == 0 || ndimB == 0) {
-        fprintf(stderr, "Empty shape detected. Broadcasting is not possible.\n");
-        return NULL; 
-    }
+        if (ndimA == 0 || ndimB == 0) {
+            log_error("Number of dimensions is 0");
+            return NULL; 
+        }
+    #endif
 
     size_t max_rank = (ndimA > ndimB) ? ndimA : ndimB;
-    size_t* result_shape = malloc(max_rank * sizeof(size_t));
+    size_t* result_shape = allocate_shape_memory(max_rank);
     if (!result_shape) {
-        fprintf(stderr, "Failed to allocate memory for result shape\n");
         return NULL;
     }
 
@@ -29,7 +30,7 @@ size_t* broadcast_shapes(size_t* shapeA, size_t ndimA, size_t* shapeB, size_t nd
 
         if (!are_dims_compatible(dimA, dimB)) {
             free(result_shape);
-            fprintf(stderr, "Shapes are not broadcastable: (%zu) and (%zu)\n", dimA, dimB);
+            log_error("Shapes are not broadcastable");
             return NULL; 
         }
 
@@ -58,15 +59,16 @@ size_t* map_broadcasted_to_original_indices(
     size_t* broadcasted_indices
 ) {
     //check if any of the inputs are NULL
-    if (!broadcasted_shape || !original_shape || !broadcasted_indices) {
-        printf("One of the inputs is NULL\n");
-        return NULL;  // One of the inputs is NULL
-    }
+    #if DEBUG_MODE
+        if (!broadcasted_shape || !original_shape || !broadcasted_indices) {
+            log_error("One of the inputs is NULL");
+            return NULL;  // One of the inputs is NULL
+        }
+    #endif
 
     // Allocate memory for original indices
     size_t* original_indices = allocate_shape_memory(ndim_original);
     if (!original_indices) {
-        printf("Failed to allocate memory for original indices\n");
         return NULL;  // Memory allocation failed
     }
 
@@ -75,7 +77,7 @@ size_t* map_broadcasted_to_original_indices(
     // Check for valid shape offset
     if (shape_offset < 0) {
         free(original_indices);
-        printf("Invalid shape offset\n");
+        log_error("Invalid shape offset");
         return NULL;  // Invalid offset
     }
 
@@ -83,12 +85,12 @@ size_t* map_broadcasted_to_original_indices(
         // Check if we're accessing valid indices
         if (i + shape_offset >= ndim_broadcasted) {
             free(original_indices);
-            printf("Accessing out of bounds in broadcasted_shape\n");
+            log_error("Accessing out of bounds in broadcasted_shape");
             return NULL;  // Accessing out of bounds in broadcasted_shape
         }
         if (i >= ndim_original) {
             free(original_indices);
-            printf("Accessing out of bounds in original_shape\n");
+            log_error("Accessing out of bounds in original_shape");
             return NULL;  // Accessing out of bounds in original_shape
         }
 
@@ -99,18 +101,17 @@ size_t* map_broadcasted_to_original_indices(
         // Ensure the index is valid for the broadcasted shape
         if (broadcast_index >= ndim_broadcasted) {
             free(original_indices);
-            printf("Accessing out of bounds in broadcasted_indices\n");
+            log_error("Accessing out of bounds in broadcasted_indices");
             return NULL;  // Accessing out of bounds in broadcasted_indices
         }
         
-
         if (original_dim == broadcast_dim) {
             original_indices[i] = broadcast_index;
         } else if (original_dim == 1) {
             original_indices[i] = 0;  // Use the first index
         } else {
             free(original_indices);  // Free memory to prevent a leak
-            printf("Shapes are incompatible\n");
+            log_error("Shapes are incompatible");
             return NULL;  // Shapes are incompatible
         }
     }
@@ -121,8 +122,8 @@ size_t* map_broadcasted_to_original_indices(
 Array* broadcast_arrays_fast(Array* arr_a, Array* arr_b, char operation_symbol) {
     size_t data_size = arr_a->size * get_dtype_size(arr_a->dtype);
     Array* result = create_array(arr_a->dtype, arr_a->ndim, arr_a->shape, NULL);
+        
     if (!result) {
-        fprintf(stderr, "Failed to allocate memory for result array\n");
         return NULL;
     }
 
@@ -137,24 +138,26 @@ Array* broadcast_arrays_fast(Array* arr_a, Array* arr_b, char operation_symbol) 
 }
 
 Array* broadcast_arrays(Array* arr_a, Array* arr_b, char operation_symbol) {
-    if (!arr_a || !arr_b) {
-        return NULL;
-    }
+    #if DEBUG_MODE
+        if (!arr_a || !arr_b) {
+            log_error("One of the arrays is NULL");
+            return NULL;
+        }
 
-    if (arr_a->ndim == 0 || arr_b->ndim == 0) {
-        fprintf(stderr, "Empty array detected. Broadcasting is not possible.\n");
-        return NULL;
-    }
+        if (arr_a->ndim == 0 || arr_b->ndim == 0) {
+            log_error("Empty array detected. Broadcasting is not possible.");
+            return NULL;
+        }
 
-    if (arr_a->dtype != arr_b->dtype) {
-        fprintf(stderr, "Data types are not equal\n");
-        return NULL;
-    }
-
+        if (arr_a->dtype != arr_b->dtype) {
+            log_error("Data types are not equal");
+            return NULL;
+        }
+    #endif
+    
     if (are_shapes_equal(arr_a->shape, arr_a->ndim, arr_b->shape, arr_b->ndim)) {
         return broadcast_arrays_fast(arr_a, arr_b, operation_symbol);
     }
-
 
     size_t result_ndim;
     size_t* result_shape = broadcast_shapes(arr_a->shape, arr_a->ndim, arr_b->shape, arr_b->ndim, &result_ndim);
@@ -165,7 +168,6 @@ Array* broadcast_arrays(Array* arr_a, Array* arr_b, char operation_symbol) {
 
     Array* result = create_array(arr_a->dtype, result_ndim, result_shape, NULL);
     if (!result) {
-        fprintf(stderr, "Failed to allocate memory for result array\n");
         return NULL;
     }
 
@@ -187,7 +189,6 @@ Array* broadcast_arrays(Array* arr_a, Array* arr_b, char operation_symbol) {
 
     
         if (!indices_a || !indices_b) {
-            fprintf(stderr, "Failed to map indices\n");
             free_array(result);
             free(indices);
             free(indices_a);

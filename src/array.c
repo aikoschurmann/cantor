@@ -15,7 +15,7 @@ Array* create_array(DataType dtype, size_t ndim, size_t *shape, void *data) {
     } else {
         free(arr->shape);
         free(arr);
-        printf("Shape is NULL\n");
+        log_error("Shape is NULL");
         return NULL;
     }
 

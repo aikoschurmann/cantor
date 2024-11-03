@@ -1,10 +1,17 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+// Define this in your project configuration or compilation flags
+
+//suggested to keep on at all times
+#define DEBUG_MODE 1  // Set to 1 to enable debug checks, 0 to disable (checks for NULL pointers, etc.)
+#define LOG_DEBUG 0  // Set to 1 to enable debug logging, 0 to disable
+
 #include <stddef.h>  // For size_t
 #include <stdio.h>   // For standard I/O operations
 #include <stdlib.h>  // For memory allocation, NULL
 #include <string.h>  // For memcpy, memset
+#include "utils.h"   // For log_error
 
 // Enum representing the supported data types for elements in the array.
 typedef enum {
