@@ -8,7 +8,7 @@ OBJ_DIR = obj
 CC = gcc
 
 # Project name
-NAME = cantor
+NAME = chess
 
 # Source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
@@ -18,16 +18,20 @@ TEST_FILES = $(wildcard $(TEST_DIR)/*.c)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES)) \
             $(patsubst $(TEST_DIR)/%.c,$(OBJ_DIR)/%.o,$(TEST_FILES))
 
+# Dependency files
+DEP_FILES = $(OBJ_FILES:.o=.d)
+
 # Flags
-CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS = $(shell sdl2-config --cflags) -Iinclude -MMD -MP
+
+LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm
 
 # Targets
 all: $(OUT_DIR)/$(NAME)
 
 $(OUT_DIR)/$(NAME): $(OBJ_FILES)
-	$(CC) $(OBJ_FILES) -o $@
+	$(CC) $(OBJ_FILES) -o $@ $(LDFLAGS)
 
-# Compile source files to object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -35,6 +39,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 $(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# Include dependencies
+-include $(DEP_FILES)
 
 # Clean up object files and binaries
 clean:
