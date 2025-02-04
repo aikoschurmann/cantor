@@ -1,8 +1,8 @@
-# C Array Library
+# C NDArray Library
 
 ## Overview
 
-This C library provides a dynamic array implementation with support for multidimensional arrays, broadcasting, and basic operations. It is designed to facilitate numerical computations similar to NumPy in Python, focusing on efficient memory management and data manipulation.
+This C library provides a dynamic ndarray implementation with support for multidimensional arrays, broadcasting, and basic operations. It is designed to facilitate numerical computations similar to NumPy in Python, focusing on efficient memory management and data manipulation.
 
 ## Features
 

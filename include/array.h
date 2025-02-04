@@ -5,12 +5,13 @@
 
 //suggested to keep on at all times
 #define DEBUG_MODE 1  // Set to 1 to enable debug checks, 0 to disable (checks for NULL pointers, etc.)
-#define LOG_DEBUG 0  // Set to 1 to enable debug logging, 0 to disable
+
+#define LOG_DEBUG 1  // Set to 1 to enable debug logging, 0 to disable
 
 #include <stddef.h>  // For size_t
 #include <stdio.h>   // For standard I/O operations
 #include <stdlib.h>  // For memory allocation, NULL
-#include <string.h>  // For memcpy, memset
+#include <string.h>  // For memcpy, memset, memcmp
 #include "utils.h"   // For log_error
 
 // Enum representing the supported data types for elements in the array.
@@ -28,6 +29,7 @@ typedef struct {
     DataType dtype;     // Data type of the elements (e.g., int, float, double).
     void* data;         // Pointer to the data storage, containing the array elements.
 } Array;
+
 
 // Function prototypes
 
@@ -94,13 +96,17 @@ size_t calculate_offset(Array* arr, size_t* indices);
 size_t* broadcast_shapes(size_t* shapeA, size_t ndimA, size_t* shapeB, size_t ndimB, size_t* result_ndim);
 
 // Maps broadcasted indices back to their original indices in the original array.
+// Eg. broadcasted_indices = [1, 2, 0], broadcasted_shape = [2, 3, 1], original_shape = [2, 1, 1]
+// The function will return [1, 0, 0] as the original indices.
 // broadcasted_shape: Pointer to the shape of the broadcasted array.
 // ndim_broadcasted: Number of dimensions of the broadcasted array.
 // original_shape: Pointer to the shape of the original array.
 // ndim_original: Number of dimensions of the original array.
 // broadcasted_indices: Pointer to an array containing the broadcasted indices.
 // Returns a pointer to the original indices, or NULL if memory allocation fails.
-size_t* map_broadcasted_to_original_indices(size_t* broadcasted_shape, size_t ndim_broadcasted, size_t* original_shape, size_t ndim_original, size_t* broadcasted_indices);
+size_t* map_broadcasted_to_original_indices(size_t* broadcasted_shape, size_t ndim_broadcasted, 
+                                            size_t* original_shape, size_t ndim_original, 
+                                            size_t* broadcasted_indices);
 
 
 // Element access functions
