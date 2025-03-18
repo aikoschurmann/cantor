@@ -26,11 +26,6 @@ The library supports the following data types:
 - **`Array* create_array(DataType dtype, size_t ndim, size_t *shape, void *data)`**: Creates a new array with the specified data type, number of dimensions, shape, and initial data.
 - **`void free_array(Array* arr)`**: Frees the memory allocated for an array.
 
-### Memory Allocation
-
-- **`Array* allocate_array_memory()`**: Allocates memory for an `Array` structure.
-- **`size_t* allocate_shape_memory(size_t ndim)`**: Allocates memory for an array shape.
-- **`void* allocate_data_memory(size_t data_size)`**: Allocates memory for array data.
 
 ### Element Access
 
@@ -48,6 +43,7 @@ The library supports the following data types:
 - **`int arrays_are_equal(Array* arr_a, Array* arr_b)`**: Compares two arrays for equality.
 
 ### Linear Algebra
+
 - **`Array* transpose(Array* arr, size_t* permutation);`**: Transposes the array given a permutation.
 
 ## Usage Example
