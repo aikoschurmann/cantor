@@ -124,9 +124,106 @@ Array* transpose(Array* arr, size_t* permutation) {
 }
 
 
+Array* sum_along_axis(Array* arr, size_t axis) {
+    if (!arr) {
+        log_error("Array is NULL");
+        return NULL;
+    }
+    if (axis >= arr->ndim) {
+        log_error("Invalid axis: Out of range");
+        return NULL;
+    }
 
+    // Compute the new shape after reduction
+    size_t* new_shape = malloc((arr->ndim - 1) * sizeof(size_t));
+    if (!new_shape) {
+        log_error("Failed to allocate memory for new shape");
+        return NULL;
+    }
 
+    size_t new_size = 1;
+    size_t axis_size = arr->shape[axis]; // Elements to sum along this axis
+    for (size_t i = 0, j = 0; i < arr->ndim; i++) {
+        if (i != axis) {
+            new_shape[j++] = arr->shape[i];
+            new_size *= arr->shape[i];
+        }
+    }
 
+    // Allocate memory for the reduced data
+    size_t dtype_size = get_dtype_size(arr->dtype);
+    void* reduced_data = allocate_data_memory(new_size * dtype_size);
+    if (!reduced_data) {
+        log_error("Failed to allocate memory for reduced data");
+        free(new_shape);
+        return NULL;
+    }
+
+    // Compute strides for accessing elements
+    size_t* strides = calculate_strides(arr->shape, arr->ndim);
+    if (!strides) {
+        free(new_shape);
+        free(reduced_data);
+        return NULL;
+    }
+
+    // Temporary storage for the sum
+    void* temp_sum = malloc(dtype_size);
+    if (!temp_sum) {
+        free(new_shape);
+        free(reduced_data);
+        free(strides);
+        log_error("Failed to allocate memory for temp sum");
+        return NULL;
+    }
+
+    // Iterate and sum along the axis
+    for (size_t i = 0; i < new_size; i++) {
+        size_t base_idx = 0;
+        size_t temp = i;
+        size_t original_indices[arr->ndim];
+
+        // Compute original indices in the non-reduced dimensions
+        for (size_t j = 0, k = 0; j < arr->ndim; j++) {
+            if (j == axis) {
+                original_indices[j] = 0; // Will iterate over this later
+            } else {
+                original_indices[j] = temp % new_shape[k++];
+                temp /= new_shape[k - 1];
+            }
+            base_idx += original_indices[j] * strides[j];
+        }
+
+        // Initialize sum to zero
+        memset(temp_sum, 0, dtype_size);
+
+        // Perform summation using apply_operation
+        for (size_t j = 0; j < axis_size; j++) {
+            original_indices[axis] = j;
+            size_t index = 0;
+            for (size_t k = 0; k < arr->ndim; k++) {
+                index += original_indices[k] * strides[k];
+            }
+
+            apply_operation('+', temp_sum, temp_sum, (char*)arr->data + index * dtype_size, arr->dtype);
+        }
+
+        // Store result in the reduced data array
+        memcpy((char*)reduced_data + i * dtype_size, temp_sum, dtype_size);
+    }
+
+    // Clean up
+    free(strides);
+    free(temp_sum);
+
+    // Create and return the new array
+    Array* result = create_array(arr->dtype, arr->ndim - 1, new_shape, reduced_data);
+    free(new_shape);
+    if (!result) {
+        free(reduced_data);
+    }
+    return result;
+}
 
 
 

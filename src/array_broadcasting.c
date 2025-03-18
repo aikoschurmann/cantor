@@ -267,3 +267,5 @@ Array* broadcast_arrays(Array* arr_a, Array* arr_b, char operation_symbol) {
     free(indices);
     return result;
 }
+
+

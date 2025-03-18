@@ -8,5 +8,6 @@ size_t* calculate_strides(const size_t* shape, size_t ndim);
 int is_valid_permutation(const size_t* perm, size_t ndim);
 void* reorder_data(Array* arr, size_t* permutation, size_t* new_shape);
 Array* transpose(Array* arr, size_t* permutation);
+Array* sum_along_axis(Array* arr, size_t axis);
 
 #endif // ARRAY_LINEAR_ALGEBRA_H

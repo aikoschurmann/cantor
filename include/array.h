@@ -216,4 +216,10 @@ void* reorder_data(Array* arr, size_t* permutation, size_t* new_shape);
 // Returns a pointer to the transposed Array structure, or NULL if memory allocation fails.
 Array* transpose(Array* arr, size_t* permutation);
 
+// Sum the elements of an array along the specified axis.
+// arr: Pointer to the Array structure to sum.
+// axis: The axis along which to sum the elements.
+// Returns a pointer to the new Array structure containing the summed elements, or NULL if memory allocation fails.
+Array* sum_along_axis(Array* arr, size_t axis);
+
 #endif // ARRAY_H

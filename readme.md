@@ -53,42 +53,53 @@ The library supports the following data types:
     #include "array.h"
 
     int main() {
-        // Create a 2x3 array with integer data
-        size_t shape1[2] = {2, 3};
-        int data[6] = {1, 2, 3, 4, 5, 6};
+        // Sales data: Stores x Products (2 stores, 3 products)
+        size_t sales_shape[2] = {2, 3};
+        int sales_data[6] = {10, 15, 20,  // Store 1 (products 1, 2, 3)
+                             5,  8,  12}; // Store 2 (products 1, 2, 3)
+        Array* sales = create_array(TYPE_INT, 2, sales_shape, sales_data);
 
-        // Create a 3x2 array with integer data
-        size_t shape2[2] = {1, 3};
-        int data2[3] = {1, 2, 3};
+        // Price per unit (1D array - broadcastable)
+        size_t price_shape[1] = {3};
+        int price_data[3] = {2, 3, 4}; // Prices: Product1 = $2, Product2 = $3, Product3 = $4
+        Array* prices = create_array(TYPE_INT, 1, price_shape, price_data);
 
-        // type, amount of values in shape (ndim), the shape, the data
-        Array* arr1 = create_array(TYPE_INT, 2, shape1, data);
-        Array* arr2 = create_array(TYPE_INT, 2, shape2, data2);
-        if (!arr1 || !arr2) {
-            fprintf(stderr, "Failed to create array.\n");
+        // Check if arrays were created successfully
+        if (!sales || !prices) {
+            fprintf(stderr, "Failed to create arrays.\n");
             return 1;
         }
-        // Print array shape and contents
-        printf("Array shape: ");
-        print_shape(arr1->shape, arr1->ndim);
-        printf("Array contents:\n");
-        print_array(arr1);
 
-        // Demonstrate broadcasting arrays
-        Array* result = broadcast_arrays(arr1, arr2, '+');
-        printf("Broadcasted array:\n");
-        print_array(result);
+        // Print sales data
+        printf("Sales Data (Units Sold per Store per Product):\n");
+        print_array(sales);
+        printf("\n");
 
-        // transpose the array
-        size_t permutation[2] = {1,0};
-        Array* transposed = transpose(result, permutation);
-        printf("Transposed array:\n");
-        print_array(transposed);
+        // Print price per product
+        printf("Price per Product:\n");
+        print_array(prices);
+        printf("\n");
 
-        free_array(arr1);
-        free_array(arr2);
+        // Compute revenue per product (Broadcasting: sales * prices)
+        Array* revenue = broadcast_arrays(sales, prices, '*');
+        printf("Revenue per Store per Product:\n");
+        print_array(revenue);
+        printf("\n");
+
+        // Compute total revenue per store
+        Array* total_revenue = sum_along_axis(revenue, 1);
+        printf("Total Revenue per Store:\n");
+        print_array(total_revenue);
+
+        // Free memory
+        free_array(sales);
+        free_array(prices);
+        free_array(revenue);
+        free_array(total_revenue);
+
         return 0;
     }
+    
 ```
 
 ## Compilation
