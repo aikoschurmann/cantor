@@ -51,50 +51,46 @@ The library supports the following data types:
 ## Usage Example
 
 ```c
-#include "array.h"
-
-int main() {
-    // Define the shape of the array (2 rows, 3 columns)
-    size_t shape[2] = {2, 3};
-
-    // Define the source data array
-    int data[6] = {1, 2, 3, 4, 5, 6}; // Source data array
-
-    // Create a 2D integer array directly with data
-    Array* arr = create_array(TYPE_INT, 2, shape, data);
+    #include <stdio.h>
+    #include "array.h"
     
-    // Check if array creation was successful
-    if (!arr) {
-        fprintf(stderr, "Failed to create array.\n");
-        return 1;
-    }
-
-    // Print the shape of the array
-    printf("Array shape: ");
-    print_shape(arr->shape, arr->ndim);
-
-    // Print the array contents after initialization
-    printf("Array contents after initialization:\n");
-    for (size_t row = 0; row < shape[0]; row++) {
-        for (size_t col = 0; col < shape[1]; col++) {
-            int* value = (int*)get_element(arr, (size_t[]){row, col});
-            printf("%d ", *value);
+    int main() {
+        // Create a 2x3 array with integer data
+        size_t shape1[2] = {2, 3};
+        int data[6] = {1, 2, 3, 4, 5, 6};
+    
+        // Create a 3x2 array with integer data
+        size_t shape2[2] = {1, 3};
+        int data2[3] = {1, 2, 3};
+    
+        // type, amount of values in shape (ndim), the shape, the data
+        Array* arr1 = create_array(TYPE_INT, 2, shape1, data);
+        Array* arr2 = create_array(TYPE_INT, 2, shape2, data2);
+        if (!arr1 || !arr2) {
+            fprintf(stderr, "Failed to create array.\n");
+            return 1;
         }
-        printf("\n");
+        // Print array shape and contents
+        printf("Array shape: ");
+        print_shape(arr1->shape, arr1->ndim);
+        printf("Array contents:\n");
+        print_array(arr1);
+    
+        // Demonstrate broadcasting arrays
+        Array* result = broadcast_arrays(arr1, arr2, '+');
+        printf("Broadcasted array:\n");
+        print_array(result);
+    
+        // transpose the array
+        size_t permutation[2] = {1,0};
+        Array* transposed = transpose(result, permutation);
+        printf("Transposed array:\n");
+        print_array(transposed);
+    
+        free_array(arr1);
+        free_array(arr2);
+        return 0;
     }
-
-    // display broadcasting 
-    size_t shapeA[2] = {1, 4};
-    size_t shapeB[2] = {4, 1};
-    size_t result_ndim;
-    size_t* result_shape = broadcast_shapes(shapeA, 2, shapeB, 2, &result_ndim);
-    printf("Broadcasted shape: ");
-    print_shape(result_shape, result_ndim);
-
-    free_array(arr);
-    free(result_shape);
-    return 0;
-}
 ```
 
 ## Compilation

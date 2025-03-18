@@ -14,49 +14,62 @@ size_t get_dtype_size(DataType dtype) {
     }
 }
 
+
+
 void print_shape(size_t* shape, size_t ndim) {
-    if (shape == NULL) {
-        printf("\033[31mShape: NULL\033[0m\n");
+    if (!shape) {
+        printf("NULL\n");
         return;
     }
-    
-    printf("\033[32mShape:\033[0m (");
-    for (size_t i = 0; i < ndim; i++) {
-        printf("%zu", shape[i]);
-        if (i < ndim - 1) {
-            printf(", ");
+
+    printf("(");
+    if (ndim > 0) {
+        printf("%zu", shape[0]);  // Print the first element
+        for (size_t i = 1; i < ndim; i++) {
+            printf(", %zu", shape[i]);  // Print remaining elements with a leading comma
         }
     }
     printf(")\n");
 }
 
+
+
 void print_array(Array* arr) {
-    if (arr == NULL) {
+    if (!arr) {
         printf("\033[31mArray: NULL\033[0m\n");  // Red for NULL
         return;
     }
 
+    size_t ndim = arr->ndim;
+    size_t *shape = arr->shape;
+
     for (size_t i = 0; i < arr->size; i++) {
-        size_t indices[arr->ndim];
+        size_t indices[ndim];
         size_t remaining_index = i;
-        for (size_t j = arr->ndim; j-- > 0;) {
-            indices[j] = remaining_index % arr->shape[j];
-            remaining_index /= arr->shape[j];
+
+        // Compute the multi-dimensional indices
+        for (size_t j = ndim; j-- > 0;) {
+            indices[j] = remaining_index % shape[j];
+            remaining_index /= shape[j];
         }
 
-        void* element = get_element(arr, indices);
+        // Fetch and print the element
+        void *element = get_element(arr, indices);
         if (element) {
             printf("%d", *(int*)element);
         } else {
             printf("NULL");
         }
 
-        if (i < arr->size - 1) {
+        // Determine when to add newlines based on the last dimension
+        if ((i + 1) % shape[ndim - 1] == 0) {
+            printf("\n");
+        } else {
             printf(", ");
         }
     }
-    printf("\n");
 }
+
 
 int are_shapes_equal(size_t* shapeA, size_t ndimA, size_t* shapeB, size_t ndimB) {
     if (ndimA != ndimB) {

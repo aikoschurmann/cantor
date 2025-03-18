@@ -189,4 +189,31 @@ void get_dim_value(size_t* shape, size_t ndim, size_t index, size_t* dim_value);
 // b: Pointer to the second operand.
 // dtype: The data type of the elements being operated on.
 void apply_operation(char operation_symbol, void* result, void* a, void* b, DataType dtype);
+
+// Calculate the strides for each dimension based on the shape of the array.
+// shape: Pointer to an array containing the shape of the array.
+// ndim: Number of dimensions of the array.
+// Returns a pointer to the calculated strides array, or NULL if memory allocation fails.
+size_t* calculate_strides(const size_t* shape, size_t ndim);
+
+
+// Check if a permutation is valid for the given number of dimensions.
+// perm: Pointer to an array containing the permutation.
+// ndim: Number of dimensions for which the permutation is intended.
+// Returns 1 if the permutation is valid; returns 0 otherwise.
+int is_valid_permutation(const size_t* perm, size_t ndim);
+
+// Reorder the data of an array based on the provided permutation and new shape.
+// arr: Pointer to the Array structure to reorder.
+// permutation: Pointer to an array containing the permutation.
+// new_shape: Pointer to an array containing the new shape after reordering.
+// Returns a pointer to the reordered data, or NULL if memory allocation fails.
+void* reorder_data(Array* arr, size_t* permutation, size_t* new_shape);
+
+// Transpose the data of an array based on the provided permutation.
+// arr: Pointer to the Array structure to transpose.
+// permutation: Pointer to an array containing the permutation.
+// Returns a pointer to the transposed Array structure, or NULL if memory allocation fails.
+Array* transpose(Array* arr, size_t* permutation);
+
 #endif // ARRAY_H
