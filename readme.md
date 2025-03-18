@@ -47,6 +47,9 @@ The library supports the following data types:
 - **`void print_shape(size_t* shape, size_t ndim)`**: Prints the shape of the array.
 - **`int arrays_are_equal(Array* arr_a, Array* arr_b)`**: Compares two arrays for equality.
 
+### Linear Algebra
+- **`Array* transpose(Array* arr, size_t* permutation);`**: Transposes the array given a permutation.
+
 ## Usage Example
 
 ```c
